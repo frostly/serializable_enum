@@ -10,8 +10,8 @@
 
 Provides two macros to facilitate easier serialization / deserialization of enums with variants
 having no data. The default serialization for serde when serializing enums with no data is of the
-form: `{"Variant": []}`. While this may work for the majority of cases, in others, you may want
-the enum to be serialized as `"variant"`. The two macros in this crate help make this
+form: `{"Variant": []}`. While this works for most use cases, you may want the enum to be
+serialized as `"variant"` instead. The two macros in this crate help make this
 serialization/deserialization easier.
 
 These macros are designed to be used with [serde](https://github.com/serde-rs/serde) only.
