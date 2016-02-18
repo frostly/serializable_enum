@@ -24,8 +24,8 @@ script:
   travis-cargo --only stable doc
 after_success:
 - travis-cargo --only stable doc-upload
-- travis-cargo coveralls --no-sudo --verify
+- travis-cargo --only stable coveralls --no-sudo --verify
 env:
   global:
-    - TRAVIS_CARGO_NIGHTLY_FEATURE="nightly-testing"
-    - secure: SuZ87xbxZZa9KJSFiAelJSIHg+7/ae60WNqAHRpAEmQGqOihERlpal9H6o5fgVb4VcvvYqYN1CKRVb2aX60mJocB+XAPGRGAzIxyEAEQ/pUYob209Dk9fCZpk28tQvAHJNHenx8WkUJUUtuSxfg8NC9ttZrPzPk02itYP1R9Em8=
+  - TRAVIS_CARGO_NIGHTLY_FEATURE="nightly-testing"
+  - secure: cmxCcni1669nfrLTVUMzqrRmLx3DXskYNeGsUYDNFUcvfT1SGJApyx/OMIMsmBODLqF/CDn14QiWzvXrDXBe2yh8CVULzSOXhZHs4p3DF5EfpGLZd9aaF74GHoNQ4HnVbQWc6iSzFHv255vvzIbsJC3uSQ2QXhyr4tl7dreX5luifw5J6qnT9DIMLbAbXmsAzd4SPDM4711V6PFkzV6EFpKTb5xSNbuXkBkGFamXlC1sECYDr235A/pV+El3sgQkLQOlQZdm/Zax8h/iqY/78LuRHwGPT1w6Y34iN+8Y+ZArx8TMRaqPAlS+l1PVvzMXy0yeampdN3ZQUEHgDsGvNl3wvcnIWtBH5jy6hcztXceHDPm2keVUsrMDD1Pdcx02LmsO8fZDT9kVxuhj+6yliW0bW4OaBfEe1cwG8UiccJictX++IxC1ve/ftmR0/DQRNTCJBAkyTBw0Dmps4pdyAZP56M//RKiG6o8Z9LC6Eg6niTGj6dYpRoDm7ZG00EBtWipSBAkClE0ux2rpUiP3OYN9WmL/TbbioZhI7WdLTnIicudVlgmtvWbaScT33qNT8DOebcXWRd2ljAZzvVxFjyxTJ1rGBY1hLIWFW5vC1PCp9UPie7Da0IU8501hthwZy+823CwuvVYD7wrLa87sV4OyMP+HCByHiTXziPo5f5g=
