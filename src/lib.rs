@@ -1,5 +1,40 @@
 //! Macros for serializing / deserializing enums containing no data variants using serde.
 
+/// Implement serde Serialize, Deserialize, and Visitor traits for the provided type and visitor
+/// type.
+#[macro_export]
+macro_rules! serde_visitor {
+    ($name:ident, $visitor:ident) => (
+        impl ::serde::ser::Serialize for $name {
+            fn serialize<S>(&self, serializer: &mut S) -> ::std::result::Result<(), S::Error> where S: ::serde::Serializer {
+                self.as_ref().serialize(serializer)
+            }
+        }
+
+        struct $visitor;
+        impl ::serde::de::Visitor for $visitor {
+            type Value = $name;
+
+            fn visit_str<E>(&mut self, s: &str) -> ::std::result::Result<Self::Value, E>
+            where E: ::serde::de::Error,
+            {
+                match s.trim().parse::<$name>() {
+                    Ok(t) => Ok(t),
+                    Err(e) => Err(::serde::de::Error::unknown_field(&e.to_string()[..])),
+                }
+            }
+        }
+
+        impl ::serde::Deserialize for $name {
+            fn deserialize<D>(deserializer: &mut D) -> ::std::result::Result<$name, D::Error>
+                    where D: ::serde::Deserializer,
+                {
+                    deserializer.visit_str($visitor)
+                }
+        }
+    )
+}
+
 /// Implements deserialization and serialization for an enum of the form:
 ///
 /// ```
@@ -42,6 +77,7 @@
 ///
 /// serializable_enum! {
 ///     /// Color
+///     #[derive(Debug, PartialEq)]
 ///     pub enum Color {
 ///         /// Red
 ///         Red,
@@ -61,47 +97,59 @@
 ///     }
 ///     Error::Parse
 /// }
+/// // also works with non-pub enums
+///
+/// serializable_enum! {
+///     /// ContentFormat
+///     #[derive(Debug)]
+///     enum ContentFormat {
+///         /// Markdown
+///         Markdown,
+///         /// Html
+///         Html,
+///     }
+///     ContentFormatVisitor
+/// }
+/// impl_as_ref_from_str! {
+///     ContentFormat {
+///         Markdown => "md",
+///         Html => "html",
+///     }
+///     Error::Parse
+/// }
 /// # } }
 #[macro_export]
 macro_rules! serializable_enum {
-    ($(#[$enum_comment:meta])* pub enum $name:ident {
-        $($(#[$enum_variant_comment:meta])+ $variant:ident,)+
-    }
-    $visitor:ident) => (
-        $(#[$enum_comment])*
-        #[derive(Debug, PartialEq, Clone)]
+    // pub enum
+    {
+        $(#[$enum_meta:meta])+
+        pub enum $name:ident {
+            $($(#[$enum_variant_comment:meta])+ $variant:ident),+
+            $(,)*
+        }
+        $visitor:ident
+    } => {
+        $(#[$enum_meta])+
         pub enum $name {
             $($(#[$enum_variant_comment])+ $variant,)+
         }
-
-        impl ::serde::ser::Serialize for $name {
-            fn serialize<S>(&self, serializer: &mut S) -> ::std::result::Result<(), S::Error> where S: ::serde::Serializer {
-                self.as_ref().serialize(serializer)
-            }
+        serde_visitor!($name, $visitor);
+    };
+    // no pub
+    {
+        $(#[$enum_meta:meta])+
+        enum $name:ident {
+            $($(#[$enum_variant_comment:meta])+ $variant:ident),+
+            $(,)*
         }
-
-        struct $visitor;
-        impl ::serde::de::Visitor for $visitor {
-            type Value = $name;
-
-            fn visit_str<E>(&mut self, s: &str) -> ::std::result::Result<Self::Value, E>
-            where E: ::serde::de::Error,
-            {
-                match s.trim().parse::<$name>() {
-                    Ok(t) => Ok(t),
-                    Err(e) => Err(::serde::de::Error::unknown_field(&e.to_string()[..])),
-                }
-            }
+        $visitor:ident
+    } => {
+        $(#[$enum_meta])+
+        enum $name {
+            $($(#[$enum_variant_comment])+ $variant,)+
         }
-
-        impl ::serde::Deserialize for $name {
-            fn deserialize<D>(deserializer: &mut D) -> ::std::result::Result<$name, D::Error>
-                    where D: ::serde::Deserializer,
-                {
-                    deserializer.visit_str($visitor)
-                }
-        }
-    )
+        serde_visitor!($name, $visitor);
+    };
 }
 
 /// Generate `AsRef` and `FromStr` impls for the given type with the variant / string pairs

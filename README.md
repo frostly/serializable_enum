@@ -91,6 +91,7 @@ impl ::std::fmt::Display for Error {
 
 serializable_enum! {
     /// Supported content formats
+    #[derive(Debug, PartialEq)]
     pub enum ContentFormat {
         /// Markdown
         Markdown,
@@ -110,8 +111,9 @@ impl_as_ref_from_str! {
 
 fn main() {
     let md = ContentFormat::Markdown;
-
     assert_eq!(serde_json::to_string(&md).unwrap(), "\"markdown\"");
+    let des_md: ContentFormat = serde_json::from_str("\"markdown\"").unwrap();
+    assert_eq!(md, des_md);
 }
 ```
 
@@ -127,9 +129,6 @@ crate with `String` data. This variant is used as the `Err` type for
 **Note**: the `serializable_enum` macro invocation **requires**:
 
 1. Doc-comments for each variant.
-2. The enum be marked `pub`. If desired, an additional macro can be made to provide the
-non-pub version. PRs welcome!
-
 
 For more details, head over to the [documentation](https://open.frostly.com/serializable_enum).
 
