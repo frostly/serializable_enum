@@ -7,17 +7,17 @@ license = "MIT/Apache-2.0"
 name = "serializable_enum"
 readme = "README.md"
 repository = "https://github.com/frostly/serializable_enum"
-version = "0.2.0"
+version = "0.3.0"
 
 [dependencies]
-serde = "0.6.13"
+serde = "0.7.0"
 
 [dependencies.clippy]
 optional = true
 version = "^0.0"
 
 [dev-dependencies]
-serde_json = "0.6"
+serde_json = "0.7.0"
 
 [features]
 nightly-testing = ["clippy"]

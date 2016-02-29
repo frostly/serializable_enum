@@ -29,7 +29,7 @@ macro_rules! serde_visitor {
             fn deserialize<D>(deserializer: &mut D) -> ::std::result::Result<$name, D::Error>
                     where D: ::serde::Deserializer,
                 {
-                    deserializer.visit_str($visitor)
+                    deserializer.deserialize($visitor)
                 }
         }
     )
