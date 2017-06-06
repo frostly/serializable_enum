@@ -109,3 +109,15 @@ fn test_priv_serialization() {
     let des_md: PrivContentFormat = serde_json::from_str("\"markdown\"").unwrap();
     assert_eq!(md, des_md);
 }
+
+#[test]
+fn test_failing_deserialization_variant() {
+    let des_fail = serde_json::from_str::<ContentFormat>("\"NoValidField\"").unwrap_err();
+    assert!(format!("{:?}", des_fail).contains("expected `Markdown` or `Html`"));
+}
+
+#[test]
+fn test_failing_deserialization_type() {
+    let des_fail = serde_json::from_str::<ContentFormat>("1").unwrap_err();
+    assert!(format!("{:?}", des_fail).contains("expected a str"));
+}

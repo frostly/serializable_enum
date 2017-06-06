@@ -4,32 +4,39 @@
 /// type.
 #[macro_export]
 macro_rules! serde_visitor {
-    ($name:ident, $visitor:ident) => (
+    ($name:ident, $visitor:ident, $($variant:ident),+) => (
         impl ::serde::ser::Serialize for $name {
-            fn serialize<S>(&self, serializer: &mut S) -> ::std::result::Result<(), S::Error> where S: ::serde::Serializer {
+            fn serialize<S>(&self, serializer: S) -> ::std::result::Result<S::Ok, S::Error> where S: ::serde::Serializer {
                 self.as_ref().serialize(serializer)
             }
         }
 
         struct $visitor;
-        impl ::serde::de::Visitor for $visitor {
+        impl<'de> ::serde::de::Visitor<'de> for $visitor {
             type Value = $name;
 
-            fn visit_str<E>(&mut self, s: &str) -> ::std::result::Result<Self::Value, E>
+            fn expecting(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result {
+                f.write_str("a str")
+            }
+
+            fn visit_str<E>(self, s: &str) -> ::std::result::Result<Self::Value, E>
             where E: ::serde::de::Error,
             {
+                #[allow(non_upper_case_globals)]
+                const VARIANTS: &'static [&'static str] = &[$(stringify!($variant)),+];
+
                 match s.trim().parse::<$name>() {
                     Ok(t) => Ok(t),
-                    Err(e) => Err(::serde::de::Error::unknown_field(&e.to_string()[..])),
+                    Err(e) => Err(::serde::de::Error::unknown_field(&e.to_string()[..], VARIANTS)),
                 }
             }
         }
 
-        impl ::serde::Deserialize for $name {
-            fn deserialize<D>(deserializer: &mut D) -> ::std::result::Result<$name, D::Error>
-                    where D: ::serde::Deserializer,
+        impl<'de> ::serde::Deserialize<'de> for $name {
+            fn deserialize<D>(deserializer: D) -> ::std::result::Result<$name, D::Error>
+                    where D: ::serde::Deserializer<'de>,
                 {
-                    deserializer.deserialize($visitor)
+                    deserializer.deserialize_str($visitor)
                 }
         }
     )
@@ -133,7 +140,7 @@ macro_rules! serializable_enum {
         pub enum $name {
             $($(#[$enum_variant_comment])+ $variant,)+
         }
-        serde_visitor!($name, $visitor);
+        serde_visitor!($name, $visitor, $($variant),+);
     };
     // no pub
     {
@@ -148,7 +155,7 @@ macro_rules! serializable_enum {
         enum $name {
             $($(#[$enum_variant_comment])+ $variant,)+
         }
-        serde_visitor!($name, $visitor);
+        serde_visitor!($name, $visitor, $($variant),+);
     };
 }
 
