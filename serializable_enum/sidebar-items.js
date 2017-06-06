@@ -1,0 +1,1 @@
+initSidebarItems({"macro":[["impl_as_ref_from_str","Generate `AsRef` and `FromStr` impls for the given type with the variant / string pairs specified."],["serde_visitor","Implement serde Serialize, Deserialize, and Visitor traits for the provided type and visitor type."],["serializable_enum","Implements deserialization and serialization for an enum of the form:"]]});
